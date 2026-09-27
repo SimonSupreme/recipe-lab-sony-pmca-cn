@@ -1,10 +1,51 @@
 # Recipe Lab — agent rules
 
-A PlayMemories (PMCA) camera app for the Sony A6000: 77 film-look recipes written straight into the
-camera's settings store. Native lib (ndk-build, NDK r16b) + Java, no Gradle.
+A PlayMemories (PMCA) camera app: 77 film-look recipes written straight into the camera's settings
+store. Native lib (ndk-build, NDK r16b) + Java, no Gradle. Upstream targets the Sony A6000; this CN
+fork is used on a **Sony A7 II (A7M2, installed via PMCA-RE)**.
 
 Read [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) and [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) before changing anything.
 The rules below are the ones that break things when ignored.
+
+## 本 fork 的工作规则（Simon 定，2026-09）
+
+These rules were given by the fork's owner during development; they apply to every change in this repo.
+
+### 安全底线（需求排序：安全 > 可靠 > 不卡 > 不影响相机原有功能）
+
+- 装上 app 后，**相机原生功能不能变差**。
+- 任何新增代码失败时的最坏结果必须是**降级为当前版本的行为**（丢功能、给提示），绝不允许崩溃循环，
+  更不允许影响相机本身。唯一的持久写入路径是设置存储，且**不得扩大写入面**（不新增槽位 ID、不新增
+  native 调用、`jni/` 不动）。
+
+### 版本与兼容红线（不许「顺手升级」）
+
+- 相机运行时是内嵌 **Android 2.3.7（API 10）**：`minSdkVersion` / `targetSdkVersion` 保持 10，不改。
+- 工具链原样不动：NDK r16b / GCC 4.9 / armeabi / build-tools 30.0.3 / 仅 v1 签名（相机不认 v2/v3）。
+- `versionCode` / `versionName` 只归 semantic-release；**不引入任何第三方库**。
+- 新代码只用与现有代码同代的 Java API 与语法：相机 `java.*` 是 Java 6 子集，`--release 8` 编译通过
+  ≠ 运行时可用。无 lambda、无 diamond、无 try-with-resources。
+
+### 界面与提示规则
+
+- 界面一律中文；改了用户可见字符串必须**同步 test/ 的期望**（1.3.1-cn 曾因漏改导致 59 个测试全红）。
+- **flashSuggest 永远只是拍摄建议提示**：不写死、不锁定、不控制闪光灯硬件——本 app 没有也不得有
+  闪光灯写入路径；用户始终可以手动开关闪光灯。
+- 提示不遮挡拍摄取景：pill / hidden（拍摄态）**零新增元素**；full panel 内优先复用现有行；
+  tip 文案 ≤ 30 字。
+
+### 既定产品方向（勿反复）
+
+- 自定义配方走双层架构：**内置 77 条 Java 表不动**，用户配方 = 种子 JSON（`res/raw/recipes.json`）
+  导入用户层，以「自定义」分组并存；JPG/RAW 切换在**应用时覆盖 dro**，不批量改写数据。
+
+### 流程
+
+- **commit 前必须把改动摆给 Simon 过目，确认后才提交**；push / 开 PR 一律等他明确指示。
+- 相机侧操作（PMCA-RE 装机、OpenMemories-Tweak、试机验证）由 Claude 直接驱动，Simon 只做物理动作
+  （插线、按键、断电重启）。
+- 实机验证按仓库规则执行：写入后必须**断电重启确认仍在**。A7R II 验证过的是运行 + 中文渲染；
+  A7M2 上的写入尚无记录，首次上机走试机协议。
 
 ## Branching
 

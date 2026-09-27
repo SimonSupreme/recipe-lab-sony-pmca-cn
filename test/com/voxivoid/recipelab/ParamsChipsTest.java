@@ -127,25 +127,25 @@ class ParamsChipsTest {
 
     @Test void chipTextPerRow() {
         int[] e = factoryRows();
-        assertEquals("Standard", fmt(R_STYLE, Recipes.STD, e));
+        assertEquals("标准", fmt(R_STYLE, Recipes.STD, e));
         assertEquals("?0", fmt(R_STYLE, 0, e));
         assertEquals("+3", fmt(R_SAT, 3, e));
         assertEquals("-2", fmt(R_CON, -2, e));
         assertEquals("0", fmt(R_SHARP, 0, e));
-        assertEquals("off", fmt(R_MTX, 0, e));
+        assertEquals("关", fmt(R_MTX, 0, e));
         assertEquals("PP3", fmt(R_MTX, 1, e));
-        assertEquals("auto", fmt(R_WBMODE, WB_AUTO, e));
-        assertEquals("kelvin", fmt(R_WBMODE, WB_KELVIN, e));
+        assertEquals("自动", fmt(R_WBMODE, WB_AUTO, e));
+        assertEquals("色温", fmt(R_WBMODE, WB_KELVIN, e));
         assertEquals("3", fmt(R_WBMODE, 3, e));
         assertEquals("-", fmt(R_KELVIN, 55, e), "meaningless in AWB");
         e[R_WBMODE] = WB_KELVIN;
         assertEquals("5500K", fmt(R_KELVIN, 55, e));
         assertEquals("0", fmt(R_AB, 0, e)); assertEquals("A2", fmt(R_AB, 2, e)); assertEquals("B3", fmt(R_AB, -3, e));
         assertEquals("0", fmt(R_GM, 0, e)); assertEquals("G4", fmt(R_GM, 4, e)); assertEquals("M1", fmt(R_GM, -1, e));
-        assertEquals("off", fmt(R_PE, 0, e)); assertEquals("Retro", fmt(R_PE, Recipes.PE_RETRO, e)); assertEquals("?14", fmt(R_PE, 14, e));
+        assertEquals("关", fmt(R_PE, 0, e)); assertEquals("复古", fmt(R_PE, Recipes.PE_RETRO, e)); assertEquals("?14", fmt(R_PE, 14, e));
         assertEquals("-", fmt(R_SUB, 0, e), "no sub for the staged effect");
         e[R_PE] = Recipes.PE_HIGHKEY;
-        assertEquals("pink", fmt(R_SUB, 1, e));
+        assertEquals("粉", fmt(R_SUB, 1, e));
         assertEquals("?7", fmt(R_SUB, 7, e));
         assertEquals("+0.7", fmt(R_EV, 2, e));
         assertEquals("Lv2", fmt(R_DRO, 2, e));

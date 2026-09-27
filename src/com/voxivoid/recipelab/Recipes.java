@@ -14,10 +14,13 @@ package com.voxivoid.recipelab;
  * ev      : exposure bias in 1/3 EV steps (persistent)
  * dro     : DRO 0 off, 1..5, 6 auto (persistent)
  * sub     : effect sub-parameter — Soft High-key tint 0 blue / 1 pink / 2 green, Toy tone 0..4, Partial hue 0..3, Posterization 0 colour / 1 b&w
+ * flash   : flash advice a custom pack recipe shows (0 none / 1 on / 2 off / 3 soft) — display only, no flash setting is ever written
+ * tip     : the browser's one-line note of a custom pack recipe; empty for the built-in table
  */
 public class Recipes {
     public static class Recipe {
-        public final int group; public final String name; public final int style, sat, con, sharp, matrix, wbMode, kelvin, ab, gm, pe, ev, dro, sub;
+        public final int group; public final String name; public final int style, sat, con, sharp, matrix, wbMode, kelvin, ab, gm, pe, ev, dro, sub, flash;
+        public final String tip;
         Recipe(int group, String name, int style, int sat, int con, int sharp, int matrix, int wbMode, int kelvin, int ab, int gm) {
             this(group, name, style, sat, con, sharp, matrix, wbMode, kelvin, ab, gm, 0, 0, DRO_AUTO);
         }
@@ -25,7 +28,10 @@ public class Recipes {
             this(group, name, style, sat, con, sharp, matrix, wbMode, kelvin, ab, gm, pe, ev, dro, 0);
         }
         Recipe(int group, String name, int style, int sat, int con, int sharp, int matrix, int wbMode, int kelvin, int ab, int gm, int pe, int ev, int dro, int sub) {
-            this.sub = sub;
+            this(group, name, style, sat, con, sharp, matrix, wbMode, kelvin, ab, gm, pe, ev, dro, sub, FLASH_NONE, "");
+        }
+        Recipe(int group, String name, int style, int sat, int con, int sharp, int matrix, int wbMode, int kelvin, int ab, int gm, int pe, int ev, int dro, int sub, int flash, String tip) {
+            this.sub = sub; this.flash = flash; this.tip = tip == null ? "" : tip;
             this.group = group; this.name = name; this.style = style; this.sat = sat; this.con = con; this.sharp = sharp; this.matrix = matrix;
             this.wbMode = wbMode; this.kelvin = kelvin; this.ab = ab; this.gm = gm; this.pe = pe; this.ev = ev; this.dro = dro;
         }
@@ -87,6 +93,11 @@ public class Recipes {
     /** DRO: 0 off, 1..5 level, 6 auto */
     public static final int DRO_OFF = 0, DRO_AUTO = 6;
     public static String droLabel(int v) { return v == DRO_AUTO ? "自动" : v == 0 ? "关" : "Lv" + v; }
+    /** flash advice a custom pack recipe carries (RecipePack) — text only: the app has no flash setting to write */
+    public static final int FLASH_NONE = 0, FLASH_ON = 1, FLASH_OFF = 2, FLASH_SOFT = 3;
+    /** the advice as the meta line shows it; null = no advice to show */
+    public static final String[] FLASH_LABEL = { null, "建议直闪", "不建议闪光", "建议柔光" };
+    public static String flashLabel(int v) { return v >= 0 && v < FLASH_LABEL.length ? FLASH_LABEL[v] : null; }
     /** exposure bias in 1/3 EV steps -> "+0.7" */
     public static String evLabel(int ev) {
         if (ev == 0) return "0";
@@ -96,6 +107,9 @@ public class Recipes {
 
     // ---- groups (brands) — recipes below MUST be listed in group order
     public static final String[] GROUPS = { "索尼", "富士模拟", "富士胶片", "柯达", "电影", "理光 GR", "徕卡", "哈苏", "佳能 / 尼康", "松下 / 奥林巴斯", "其他胶片", "伊尔福德" };
+    /** the group a custom pack lands in (RecipePack): the brands run 0..GROUPS.length-1, and this row is composed at runtime */
+    public static final int CUSTOM = GROUPS.length;
+    public static final String CUSTOM_NAME = "自定义";
     private static final int SONY = 0, FSIM = 1, FFILM = 2, KODAK = 3, CINE = 4, RICOH = 5, LEICA = 6, HASSEL = 7, CANIK = 8, PANOLY = 9, OTHER = 10, ILFORD = 11;
 
     public static final Recipe[] ALL = {

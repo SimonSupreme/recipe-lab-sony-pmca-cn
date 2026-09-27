@@ -23,7 +23,7 @@ class ParamsWritesTest {
         assertEquals(0, dirtyRows(cur, cur.clone(), 0));
         assertTrue(writes(cur, cur.clone(), 0).isEmpty());
         // the Factory recipe on a factory camera is the same thing
-        assertTrue(writesFromFactory("FACTORY (ST)", Q_FINE).isEmpty());
+        assertTrue(writesFromFactory("出厂默认（标准）", Q_FINE).isEmpty());
     }
 
     @Test void portra400FromFactory() {
@@ -33,18 +33,18 @@ class ParamsWritesTest {
                 w(ID_WB_AB, 3), w(ID_WB_AB_AWB, 3),
                 w(ID_WB_GM, -1), w(ID_WB_GM_AWB, -1),   // G1 goes in magenta-positive
                 w(ID_EV, 2), w(ID_EV2, 2)),            // exposure bias and its companion copy
-                writesFromFactory("Kodak Portra 400", Q_FINE));
+                writesFromFactory("柯达 Portra 400", Q_FINE));
     }
 
     @Test void velviaWritesPictureProfileThreeForTheMatrix() {
         assertEquals(Arrays.asList(w(ID_STYLE, Recipes.VIVID), w(ID_SAT, 5), w(ID_CON, 2), w(ID_PP_NO, 3)),
-                writesFromFactory("Velvia", Q_FINE));
+                writesFromFactory("Velvia 鲜艳", Q_FINE));
     }
 
     @Test void eternaWritesBothDroBytes() {
         assertEquals(Arrays.asList(w(ID_STYLE, Recipes.NEUTRAL), w(ID_SAT, -4), w(ID_CON, -2), w(ID_SHARP, -1),
                 w(ID_EV, -1), w(ID_EV2, -1), w(ID_DRO, 4), w(ID_DRO_LVL, 4)),
-                writesFromFactory("Eterna", Q_FINE));
+                writesFromFactory("Eterna 电影", Q_FINE));
     }
 
     @Test void droOffIsZeroWithLevelOne() {
@@ -61,16 +61,16 @@ class ParamsWritesTest {
                 w(ID_WB_MODE, WB_KELVIN), w(ID_WB_TEMP, 25),
                 w(ID_WB_AB, 0), w(ID_WB_AB_K, 0),
                 w(ID_WB_GM, 0), w(ID_WB_GM_K, 0)),
-                writesFromFactory("Acros +R (red filter)", Q_FINE));
+                writesFromFactory("Acros + 红滤镜", Q_FINE));
     }
 
     @Test void anEffectOverARawBaseAlsoSwitchesTheCameraToJpegFine() {
-        List<Write> ws = writesFromFactory("Acros +R (red filter)", Q_RAW);
+        List<Write> ws = writesFromFactory("Acros + 红滤镜", Q_RAW);
         // cur says JPEG Fine (factoryRows), the staged quality is JPEG Fine too -- no quality write
         assertFalse(ws.contains(w(ID_QFMT, 0)));
 
         int[] cur = factoryRows(); cur[R_QUAL] = Q_RAW;
-        int[] edit = staged(Fixtures.recipe("Acros +R (red filter)"), cur, Q_RAW);
+        int[] edit = staged(Fixtures.recipe("Acros + 红滤镜"), cur, Q_RAW);
         assertEquals(Q_FINE, edit[R_QUAL]);
         ws = writes(cur, edit, 0);
         assertEquals(Arrays.asList(w(ID_QFMT, 0), w(ID_QFMT2, 0), w(ID_QJPG, 1), w(ID_QJPG2, 1)), ws.subList(ws.size() - 4, ws.size()),
@@ -86,7 +86,7 @@ class ParamsWritesTest {
 
     @Test void theSubParameterGoesToTheStagedEffectsSlot() {
         int[] cur = factoryRows();
-        int[] edit = staged(Fixtures.recipe("Sony SH (soft high-key)"), cur, Q_FINE); edit[R_SUB] = 2;   // green tint; no recipe ships a non-zero sub today
+        int[] edit = staged(Fixtures.recipe("索尼 SH（柔和高亮）"), cur, Q_FINE); edit[R_SUB] = 2;   // green tint; no recipe ships a non-zero sub today
         List<Write> ws = writes(cur, edit, 0);
         assertTrue(ws.contains(w(0x010709d8, 2)), "green tint of Soft High-key: " + ws);
         assertTrue(ws.contains(w(ID_PE, Recipes.PE_HIGHKEY)));
@@ -128,7 +128,7 @@ class ParamsWritesTest {
 
     @Test void stagingAKelvinRecipeConvertsToHundreds() {
         int[] edit = factoryRows();
-        Params.stage(Fixtures.recipe("Acros +Ye (yellow filter)"), edit);
+        Params.stage(Fixtures.recipe("Acros + 黄滤镜"), edit);
         assertEquals(WB_KELVIN, edit[R_WBMODE]);
         assertEquals(40, edit[R_KELVIN]);
     }

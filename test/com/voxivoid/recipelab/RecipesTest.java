@@ -44,7 +44,7 @@ class RecipesTest {
 
     @Test void theFirstRecipeIsTheFactoryLook() {
         Recipes.Recipe f = Recipes.ALL[0];   // TRASH stages recipe 0 as "factory"
-        assertTrue(f.name.startsWith("FACTORY"), f.name);
+        assertTrue(f.name.startsWith("出厂默认"), f.name);
         assertEquals(Recipes.STD, f.style);
         assertEquals(0, f.sat); assertEquals(0, f.con); assertEquals(0, f.sharp); assertEquals(0, f.matrix);
         assertEquals(Params.WB_AUTO, f.wbMode); assertEquals(0, f.ab); assertEquals(0, f.gm);
@@ -92,7 +92,7 @@ class RecipesTest {
         assertEquals("red-leaves", Recipes.STYLE_NAMES[Recipes.AUTUMN]);
         assertEquals(14, Recipes.SEPIA, "sepia is 0x0e in the store, measured by menu diff");
         assertEquals("sepia", Recipes.STYLE_NAMES[Recipes.SEPIA]);
-        assertEquals("B&W", Recipes.STYLE_LABEL[Recipes.MONO]);
+        assertEquals("黑白", Recipes.STYLE_LABEL[Recipes.MONO]);
     }
 
     @Test void unidentifiedStyleValuesAreMarkedUnknown() {
@@ -128,7 +128,13 @@ class RecipesTest {
             } else {
                 assertTrue(id != 0, "effect " + pe + " has a sub key but no slot");
                 assertNotNull(values);
-                for (int i = 0; i < values.length; i++) assertEquals(values[i].replace("posterization-", ""), Recipes.subLabel(pe, i));
+                // the labels are Chinese now; what must hold is label i == stored value i, spot-checked per effect
+                assertEquals("普通", Recipes.subLabel(Recipes.PE_TOY, 0));
+                assertEquals("品红", Recipes.subLabel(Recipes.PE_TOY, 4));
+                assertEquals("蓝", Recipes.subLabel(Recipes.PE_HIGHKEY, 0));
+                assertEquals("红", Recipes.subLabel(6, 0));
+                assertEquals("彩色", Recipes.subLabel(3, 0));
+                assertEquals("黑白", Recipes.subLabel(3, 1));
                 assertEquals("?" + values.length, Recipes.subLabel(pe, values.length));
                 assertEquals("?-1", Recipes.subLabel(pe, -1));
                 longest = Math.max(longest, values.length);
@@ -139,8 +145,8 @@ class RecipesTest {
         assertEquals(0x010706f3, Recipes.subId(Recipes.PE_TOY));
         assertEquals(0x010706ee, Recipes.subId(6));
         assertEquals(0x010706ef, Recipes.subId(3));
-        assertEquals("bw", Recipes.subLabel(3, 1));
-        assertEquals("color", Recipes.subLabel(3, 0));
+        assertEquals("黑白", Recipes.subLabel(3, 1));
+        assertEquals("彩色", Recipes.subLabel(3, 0));
     }
 
     @Test void evLabelIsThirdsWithASign() {
@@ -156,49 +162,49 @@ class RecipesTest {
     }
 
     @Test void droLabel() {
-        assertEquals("off", Recipes.droLabel(Recipes.DRO_OFF));
-        assertEquals("auto", Recipes.droLabel(Recipes.DRO_AUTO));
+        assertEquals("关", Recipes.droLabel(Recipes.DRO_OFF));
+        assertEquals("自动", Recipes.droLabel(Recipes.DRO_AUTO));
         assertEquals("Lv1", Recipes.droLabel(1));
         assertEquals("Lv5", Recipes.droLabel(5));
     }
 
     @Test void styleAndEffectLabelsFallBackToTheRawValue() {
-        assertEquals("Neutral", Recipes.styleLabel(Recipes.NEUTRAL));
-        assertEquals("Sepia", Recipes.styleLabel(Recipes.SEPIA));
+        assertEquals("中性", Recipes.styleLabel(Recipes.NEUTRAL));
+        assertEquals("棕褐色", Recipes.styleLabel(Recipes.SEPIA));
         assertEquals("?0", Recipes.styleLabel(0));
         assertEquals("?15", Recipes.styleLabel(15));
-        assertEquals("off", Recipes.peLabel(0));
-        assertEquals("Retro", Recipes.peLabel(Recipes.PE_RETRO));
+        assertEquals("关", Recipes.peLabel(0));
+        assertEquals("复古", Recipes.peLabel(Recipes.PE_RETRO));
         assertEquals("?14", Recipes.peLabel(14));
         assertEquals("?-1", Recipes.peLabel(-1));
     }
 
     @Test void isEffectMeansAPictureEffectIsOn() {
-        assertFalse(recipe("Velvia").isEffect());
-        assertTrue(recipe("GR Retro").isEffect());
-        assertTrue(recipe("Sony SH (soft high-key)").isEffect());
+        assertFalse(recipe("Velvia 鲜艳").isEffect());
+        assertTrue(recipe("GR 复古").isEffect());
+        assertTrue(recipe("索尼 SH（柔和高亮）").isEffect());
     }
 
     @Test void summaryReadsLikeTheBrowserLine() {
-        assertEquals("Standard  0/0", Recipes.ALL[0].summary());
-        assertEquals("Neutral  -4/-1  A1", recipe("Sony FL (film-like)").summary());
-        assertEquals("Vivid  +5/+2  MTX", recipe("Velvia").summary());
-        assertEquals("B&W  0/+1  4000K", recipe("Acros +Ye (yellow filter)").summary());
-        assertEquals("B&W  0/+1  5600K  G4", recipe("Acros +G (green filter)").summary());
-        assertEquals("Standard  -2/-1  5500K  B1  M1", recipe("Cinestill 50D (Blue Velvet)").summary());
-        assertEquals("Neutral  -4/-2  -0.3  DRO Lv3", recipe("Eterna").summary());
-        assertEquals("Neutral  -2/-2  DRO Lv5", recipe("Rec709 Video (flat-ish)").summary());
-        assertEquals("Portrait  -1/-1  +0.7  A3  G1", recipe("Kodak Portra 400").summary());
-        assertEquals("Neutral  -1/0  +0.3  DRO Lv3  3200K", recipe("Kodak Vision3 500T (daylight)").summary());
+        assertEquals("标准  0/0", Recipes.ALL[0].summary());
+        assertEquals("中性  -4/-1  A1", recipe("索尼 FL（胶片感）").summary());
+        assertEquals("生动  +5/+2  MTX", recipe("Velvia 鲜艳").summary());
+        assertEquals("黑白  0/+1  4000K", recipe("Acros + 黄滤镜").summary());
+        assertEquals("黑白  0/+1  5600K  G4", recipe("Acros + 绿滤镜").summary());
+        assertEquals("标准  -2/-1  5500K  B1  M1", recipe("Cinestill 50D（蓝丝绒）").summary());
+        assertEquals("中性  -4/-2  -0.3  DRO Lv3", recipe("Eterna 电影").summary());
+        assertEquals("中性  -2/-2  DRO Lv5", recipe("Rec709 视频（偏平直）").summary());
+        assertEquals("肖像  -1/-1  +0.7  A3  G1", recipe("柯达 Portra 400").summary());
+        assertEquals("中性  -1/0  +0.3  DRO Lv3  3200K", recipe("柯达 Vision3 500T（日光）").summary());
     }
 
     @Test void summaryOfAnEffectNamesTheEffectAndItsSubParameter() {
-        assertEquals("High-key blue  +1.0  A1", recipe("Sony SH (soft high-key)").summary());
-        assertEquals("Retro  A3  M1", recipe("GR Retro").summary());
-        assertEquals("HC mono  2500K", recipe("Acros +R (red filter)").summary());
+        assertEquals("高亮 蓝  +1.0  A1", recipe("索尼 SH（柔和高亮）").summary());
+        assertEquals("复古  A3  M1", recipe("GR 复古").summary());
+        assertEquals("强反差单色  2500K", recipe("Acros + 红滤镜").summary());
         // a matrix is meaningless under an effect and stays out of the line
         Recipes.Recipe r = new Recipes.Recipe(0, "x", Recipes.STD, 0, 0, 0, 1, Params.WB_AUTO, 0, 0, 0, Recipes.PE_POP, 0, Recipes.DRO_AUTO);
-        assertEquals("Pop", r.summary());
+        assertEquals("流行", r.summary());
     }
 
     @Test void nextWrapsOverTheWholeTable() {
@@ -220,7 +226,7 @@ class RecipesTest {
         assertEquals(start + 1, Recipes.nextInGroup(start, +1));
         assertEquals(start, Recipes.nextInGroup(start + n - 1, +1));
         assertEquals(start + n - 1, Recipes.nextInGroup(start, -1));
-        int solo = indexOf("Hasselblad HNCS Natural");
+        int solo = indexOf("哈苏 HNCS 自然色");
         assertEquals(1, Recipes.GROUP_COUNT[Recipes.ALL[solo].group]);
         assertEquals(solo, Recipes.nextInGroup(solo, +1));
         assertEquals(solo, Recipes.nextInGroup(solo, -1));

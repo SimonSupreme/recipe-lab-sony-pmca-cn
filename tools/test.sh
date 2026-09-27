@@ -26,6 +26,7 @@ if [ -n "${JAVA_HOME:-}" ]; then JAVA="$JAVA_HOME/bin"; else JAVA="$(dirname "$(
 # with a test next to it; MainActivity and the views stay out because they cannot run off the camera.
 UNITS=(
   src/com/voxivoid/recipelab/Recipes.java
+  src/com/voxivoid/recipelab/RecipePack.java
   src/com/voxivoid/recipelab/Params.java
   src/com/voxivoid/recipelab/Favourites.java
   src/com/voxivoid/recipelab/DevTools.java

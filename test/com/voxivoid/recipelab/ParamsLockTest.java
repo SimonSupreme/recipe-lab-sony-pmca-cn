@@ -72,18 +72,18 @@ class ParamsLockTest {
 
     // ---- naming a slot
     @Test void aSlotIsNamedAfterTheRowThatOwnsIt() {
-        assertEquals("STYLE", slotName(ID_STYLE));
+        assertEquals("风格", slotName(ID_STYLE));
         assertEquals("EV", slotName(ID_EV));
         assertEquals("EV", slotName(ID_EV2), "the companion copy belongs to the same row");
-        assertEquals("QUALITY", slotName(ID_QJPG2));
+        assertEquals("画质", slotName(ID_QJPG2));
         assertEquals("A-B", slotName(ID_WB_AB_K));
         assertEquals("G-M", slotName(ID_WB_GM_AWB));
         assertEquals("DRO", slotName(ID_DRO_LVL));
-        assertEquals("MATRIX", slotName(ID_PP_NO));
-        assertEquals("WB", slotName(ID_WB_MODE));
-        assertEquals("KELVIN", slotName(ID_WB_TEMP));
-        assertEquals("EFFECT", slotName(ID_PE));
-        assertEquals("SUB High-key", slotName(Recipes.subId(Recipes.PE_HIGHKEY)));
+        assertEquals("矩阵", slotName(ID_PP_NO));
+        assertEquals("白平衡", slotName(ID_WB_MODE));
+        assertEquals("色温", slotName(ID_WB_TEMP));
+        assertEquals("特效", slotName(ID_PE));
+        assertEquals("子项 高亮", slotName(Recipes.subId(Recipes.PE_HIGHKEY)));
         assertEquals("00e70000", slotName(0x00e70000), "a slot no row owns is named by its id");
         assertEquals("00000000", slotName(0), "NO_SLOT owns nothing — least of all the effect that has no sub-slot");
     }
@@ -91,40 +91,40 @@ class ParamsLockTest {
     // ---- what the user is told
     @Test void theLockedMessageNamesTheSettingsAndTheWayOut() {
         String one = lockedMessage(ids(ID_STYLE));
-        assertTrue(one.startsWith("Not written — the camera holds this setting read-only: STYLE."), one);
+        assertTrue(one.startsWith("未写入 —— 相机将该设置设为只读：风格。"), one);
         assertTrue(one.contains("OpenMemories-Tweak"), "the message carries the only fix there is");
 
         String many = lockedMessage(ids(ID_EV, ID_EV2, ID_STYLE));
-        assertTrue(many.contains("these settings read-only: EV, STYLE"), many);
+        assertTrue(many.contains("以下设置设为只读：EV, 风格"), many);
         assertFalse(many.contains("EV, EV"), "a row whose copies are both locked is named once: " + many);
     }
 
     @Test void theWriteFailureNamesTheSlotAndHowFarItGot() {
-        assertEquals("WRITE FAILED on STYLE (01070175): Protection enabled — nothing was written",
+        assertEquals("写入失败：风格（01070175）：Protection enabled —— 未写入任何内容",
                 writeFailedMessage(ID_STYLE, "Protection enabled", 0));
-        assertEquals("WRITE FAILED on G-M (0107067e): Backup_write failed — 1 byte written before it stopped",
+        assertEquals("写入失败：G-M（0107067e）：Backup_write failed —— 已写入 1 字节后停止",
                 writeFailedMessage(ID_WB_GM_AWB, "Backup_write failed", 1));
-        assertTrue(writeFailedMessage(ID_EV, "boom", 4).endsWith("4 bytes written before it stopped"));
+        assertTrue(writeFailedMessage(ID_EV, "boom", 4).endsWith("已写入 4 字节后停止"));
     }
 
     // ---- the developer menu's report
     @Test void aBodyWithNothingFlaggedReportsNothingReadOnly() {
         List<Integer> ids = allSlots();
         int[] attrs = new int[ids.size()];
-        assertEquals("26 recipe slots checked  ·  none read-only", lockReport(ids, attrs));
+        assertEquals("26 个配方插槽已检查  ·  无只读插槽", lockReport(ids, attrs));
     }
 
     @Test void theReportNamesTheLockedRowsAndCountsTheSlotsThatWouldNotAnswer() {
         List<Integer> ids = ids(ID_STYLE, ID_EV, ID_EV2, ID_SAT);
         int[] attrs = { ATTR_READ_ONLY, ATTR_READ_ONLY, ATTR_READ_ONLY, -1 };
-        assertEquals("4 recipe slots checked  ·  3 read-only: STYLE, EV  ·  1 would not answer", lockReport(ids, attrs));
+        assertEquals("4 个配方插槽已检查  ·  3 个只读：风格, EV  ·  1 个无响应", lockReport(ids, attrs));
     }
 
     @Test void theReportFileHasOneLinePerSlot() {
         String lines = lockLines(ids(ID_STYLE, ID_SAT, ID_EV), new int[] { ATTR_READ_ONLY, 0, -1 });
         assertEquals(Arrays.asList(
-                "01070175 STYLE attr=1 READ_ONLY",
-                "01070187 SAT attr=0",
+                "01070175 风格 attr=1 READ_ONLY",
+                "01070187 饱和 attr=0",
                 "010700b8 EV attr=?"),
                 Arrays.asList(lines.split("\n")));
     }
