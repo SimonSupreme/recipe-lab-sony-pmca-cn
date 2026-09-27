@@ -21,23 +21,23 @@ class DevToolsTest {
     }
 
     @Test void theSnapshotRowSaysWhichHalfOfTheToolItWillRun() {
-        assertEquals("Settings snapshot", DevTools.rowLabel(DevTools.ROW_SNAPSHOT, false, 0));
-        assertEquals("Settings diff", DevTools.rowLabel(DevTools.ROW_SNAPSHOT, true, 0), "a snapshot is on disk, so the next press diffs against it");
+        assertEquals("设置快照", DevTools.rowLabel(DevTools.ROW_SNAPSHOT, false, 0));
+        assertEquals("设置对比", DevTools.rowLabel(DevTools.ROW_SNAPSHOT, true, 0), "a snapshot is on disk, so the next press diffs against it");
     }
 
     @Test void theReadOnlyRowCountsTheSlotsItWillTest() {
-        assertEquals("Read-only check — 26 slots", DevTools.rowLabel(DevTools.ROW_LOCKS, false, 0));
+        assertEquals("只读检查 —— 26 个插槽", DevTools.rowLabel(DevTools.ROW_LOCKS, false, 0));
         assertEquals(Params.allSlots().size(), 26, "the label counts the slots, so the slots are what it must count");
     }
 
     @Test void theSampleRowNamesTheWholeTable() {
-        assertEquals("Shoot samples — 77 recipes", DevTools.rowLabel(DevTools.ROW_SAMPLES, false, 0));
+        assertEquals("拍摄样片 —— 77 个配方", DevTools.rowLabel(DevTools.ROW_SAMPLES, false, 0));
         assertEquals(77, Recipes.ALL.length, "the label counts the table, so the table is what it must count");
     }
 
     @Test void theDelayRowShowsTheChosenDelay() {
-        assertEquals("Settle delay — 0.8 s", DevTools.rowLabel(DevTools.ROW_SETTLE, false, 0));
-        assertEquals("Settle delay — 1.2 s", DevTools.rowLabel(DevTools.ROW_SETTLE, false, 1));
+        assertEquals("稳定延迟 —— 0.8 s", DevTools.rowLabel(DevTools.ROW_SETTLE, false, 0));
+        assertEquals("稳定延迟 —— 1.2 s", DevTools.rowLabel(DevTools.ROW_SETTLE, false, 1));
     }
 
     @Test void oneTurnOfTheMenuVisitsEveryRowItDefines() {
@@ -78,19 +78,19 @@ class DevToolsTest {
 
     // ---- what the run says while it walks the table
     @Test void progressCountsFramesFromOneAndNamesTheWayOut() {
-        String p = DevTools.progress(1, 77, "FACTORY (ST)");
-        assertTrue(p.startsWith("Shooting 1 / 77"), p);
-        assertTrue(p.contains("FACTORY (ST)"), p);
+        String p = DevTools.progress(1, 77, "出厂默认（标准）");
+        assertTrue(p.startsWith("拍摄 1 / 77"), p);
+        assertTrue(p.contains("出厂默认（标准）"), p);
         assertTrue(p.contains("MENU"), p);
     }
 
     @Test void theEndOfARunSaysHowManyFramesAndWhereTheListIs() {
-        assertTrue(DevTools.doneMessage(77, 77).contains("77 of 77"), DevTools.doneMessage(77, 77));
+        assertTrue(DevTools.doneMessage(77, 77).contains("77 / 77"), DevTools.doneMessage(77, 77));
         assertTrue(DevTools.doneMessage(77, 77).contains(DevTools.MANIFEST));
-        assertTrue(DevTools.stoppedMessage(12, 77).contains("12 of 77"), DevTools.stoppedMessage(12, 77));
-        assertTrue(DevTools.stoppedMessage(0, 77).contains("before the first frame"), "nothing was shot, so there is nothing to point at");
+        assertTrue(DevTools.stoppedMessage(12, 77).contains("12 / 77"), DevTools.stoppedMessage(12, 77));
+        assertTrue(DevTools.stoppedMessage(0, 77).contains("第一张之前"), "nothing was shot, so there is nothing to point at");
         assertFalse(DevTools.stoppedMessage(0, 77).contains(DevTools.MANIFEST));
-        assertTrue(DevTools.shootFailed(13, 12, "timeout").contains("frame 13"), DevTools.shootFailed(13, 12, "timeout"));
+        assertTrue(DevTools.shootFailed(13, 12, "timeout").contains("第 13 张"), DevTools.shootFailed(13, 12, "timeout"));
     }
 
     // ---- the manifest
@@ -103,7 +103,7 @@ class DevToolsTest {
     }
 
     @Test void aLineIsFrameRecipeBrandValues() {
-        assertEquals("01" + DevTools.SEP + "FACTORY (ST)" + DevTools.SEP + "Sony" + DevTools.SEP + Recipes.ALL[0].summary(),
+        assertEquals("01" + DevTools.SEP + "出厂默认（标准）" + DevTools.SEP + "索尼" + DevTools.SEP + Recipes.ALL[0].summary(),
                 DevTools.manifestLine(1, 0));
         assertTrue(DevTools.manifestLine(10, 9).startsWith("10" + DevTools.SEP), "frames past nine are not padded further");
     }

@@ -16,7 +16,7 @@ class ParamsPreviewTest {
     }
 
     @Test void factoryLook() {
-        Map<String, String> p = previewOf("FACTORY (ST)", Q_FINE);
+        Map<String, String> p = previewOf("出厂默认（标准）", Q_FINE);
         assertEquals("standard", p.get("color-mode"));
         assertEquals("0", p.get("saturation"));
         assertEquals("0", p.get("contrast"));
@@ -37,13 +37,13 @@ class ParamsPreviewTest {
     }
 
     @Test void keysAreSetInAStableOrder() {
-        Map<String, String> p = previewOf("FACTORY (ST)", Q_FINE);
+        Map<String, String> p = previewOf("出厂默认（标准）", Q_FINE);
         assertEquals("color-mode", new ArrayList<String>(p.keySet()).get(0));
         assertEquals("dro-mode", new ArrayList<String>(p.keySet()).get(p.size() - 1));
     }
 
     @Test void creativeStyleAndAdjustments() {
-        Map<String, String> p = previewOf("Sony FL (film-like)", Q_FINE);
+        Map<String, String> p = previewOf("索尼 FL（胶片感）", Q_FINE);
         assertEquals("neutral", p.get("color-mode"));
         assertEquals("-4", p.get("saturation"));
         assertEquals("-1", p.get("contrast"));
@@ -60,22 +60,22 @@ class ParamsPreviewTest {
     }
 
     @Test void theMatrixIsThePp3MeasurementInQ10() {
-        Map<String, String> p = previewOf("Velvia", Q_FINE);
+        Map<String, String> p = previewOf("Velvia 鲜艳", Q_FINE);
         assertEquals("true", p.get("rgb-matrix-mode"));
         assertEquals("1331,-307,-51,-205,1331,-123,-20,-461,1485", p.get("rgb-matrix"));
     }
 
     @Test void colourTemperatureWhiteBalance() {
-        Map<String, String> p = previewOf("Acros +Ye (yellow filter)", Q_FINE);
+        Map<String, String> p = previewOf("Acros + 黄滤镜", Q_FINE);
         assertEquals("color-temp", p.get("whitebalance"));
         assertEquals("4000", p.get("color-temperture-white-balance"));
         assertEquals("mono", p.get("color-mode"));
     }
 
     @Test void greenMagentaIsSentMagentaPositive() {
-        Map<String, String> p = previewOf("Acros +G (green filter)", Q_FINE);
+        Map<String, String> p = previewOf("Acros + 绿滤镜", Q_FINE);
         assertEquals("-4", p.get("color-compensation-for-white-balance"));
-        p = previewOf("Cinestill 50D (Blue Velvet)", Q_FINE);
+        p = previewOf("Cinestill 50D（蓝丝绒）", Q_FINE);
         assertEquals("-1", p.get("light-balance-for-white-balance"), "B1 is amber -1");
     }
 
@@ -85,13 +85,13 @@ class ParamsPreviewTest {
     }
 
     @Test void pictureEffectWithItsSubParameter() {
-        Map<String, String> p = previewOf("Sony SH (soft high-key)", Q_FINE);
+        Map<String, String> p = previewOf("索尼 SH（柔和高亮）", Q_FINE);
         assertEquals("soft-high-key", p.get("picture-effect"));
         assertEquals("blue", p.get("pe-soft-high-key-effect"));
         assertEquals("3", p.get("exposure-compensation"));
-        int[] e = staged(recipe("Sony SH (soft high-key)"), factoryRows(), Q_FINE); e[R_SUB] = 2;   // no recipe uses a non-zero sub today
+        int[] e = staged(recipe("索尼 SH（柔和高亮）"), factoryRows(), Q_FINE); e[R_SUB] = 2;   // no recipe uses a non-zero sub today
         assertEquals("green", preview(e).get("pe-soft-high-key-effect"));
-        p = previewOf("GR Retro", Q_FINE);
+        p = previewOf("GR 复古", Q_FINE);
         assertEquals("retro-photo", p.get("picture-effect"));
         assertFalse(p.containsKey("pe-soft-high-key-effect"));
         assertEquals("standard", p.get("color-mode"), "the style is still sent; the camera ignores it under an effect");
@@ -117,7 +117,7 @@ class ParamsPreviewTest {
     }
 
     @Test void droLevelsAndOff() {
-        Map<String, String> p = previewOf("Eterna", Q_FINE);
+        Map<String, String> p = previewOf("Eterna 电影", Q_FINE);
         assertEquals("on", p.get("dro-mode"));
         assertEquals("3", p.get("dro-level"));
         int[] e = factoryRows(); e[R_DRO] = Recipes.DRO_OFF;

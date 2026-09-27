@@ -11,52 +11,52 @@ class ParamsHudTest {
 
     @Test void metaLineForACreativeStyleRecipe() {
         int[] cur = factoryRows();
-        assertEquals("Standard  ·  WB auto", metaLine(cur, cur.clone(), null));
-        int[] e = staged(recipe("Kodak Portra 400"), cur, Q_FINE);
-        assertEquals("Portrait  ·  WB auto  ·  EV +0.7", metaLine(cur, e, null));
-        e = staged(recipe("Velvia"), cur, Q_FINE);
-        assertEquals("Vivid  ·  WB auto  ·  PP3 matrix", metaLine(cur, e, null));
-        e = staged(recipe("Kodak Vision3 500T (daylight)"), cur, Q_FINE);
-        assertEquals("Neutral  ·  WB 3200K  ·  EV +0.3  ·  DRO Lv3", metaLine(cur, e, null));
+        assertEquals("标准  ·  白平衡 自动", metaLine(cur, cur.clone(), null));
+        int[] e = staged(recipe("柯达 Portra 400"), cur, Q_FINE);
+        assertEquals("肖像  ·  白平衡 自动  ·  EV +0.7", metaLine(cur, e, null));
+        e = staged(recipe("Velvia 鲜艳"), cur, Q_FINE);
+        assertEquals("生动  ·  白平衡 自动  ·  PP3 矩阵", metaLine(cur, e, null));
+        e = staged(recipe("柯达 Vision3 500T（日光）"), cur, Q_FINE);
+        assertEquals("中性  ·  白平衡 3200K  ·  EV +0.3  ·  DRO Lv3", metaLine(cur, e, null));
     }
 
     @Test void metaLineForAnEffectRecipe() {
         int[] cur = factoryRows();
-        int[] e = staged(recipe("Sony SH (soft high-key)"), cur, Q_FINE);
-        assertEquals("Picture Effect High-key blue (Creative Style ignored, JPEG only)  ·  WB auto  ·  EV +1.0", metaLine(cur, e, null));
-        e = staged(recipe("Acros +R (red filter)"), cur, Q_FINE);
-        assertEquals("Picture Effect HC mono (Creative Style ignored, JPEG only)  ·  WB 2500K", metaLine(cur, e, null));
+        int[] e = staged(recipe("索尼 SH（柔和高亮）"), cur, Q_FINE);
+        assertEquals("照片效果 高亮 蓝（创意风格被忽略，仅限 JPEG）  ·  白平衡 自动  ·  EV +1.0", metaLine(cur, e, null));
+        e = staged(recipe("Acros + 红滤镜"), cur, Q_FINE);
+        assertEquals("照片效果 强反差单色（创意风格被忽略，仅限 JPEG）  ·  白平衡 2500K", metaLine(cur, e, null));
     }
 
     @Test void metaLineAnnouncesAQualityChangeAndRawUnderAnEffect() {
         int[] cur = factoryRows(); cur[R_QUAL] = Q_RAW;
-        int[] e = staged(recipe("GR Retro"), cur, Q_RAW);
-        assertEquals("Picture Effect Retro (Creative Style ignored, JPEG only)  ·  WB auto  ·  QUALITY → JPG Fine (now RAW)", metaLine(cur, e, null));
+        int[] e = staged(recipe("GR 复古"), cur, Q_RAW);
+        assertEquals("照片效果 复古（创意风格被忽略，仅限 JPEG）  ·  白平衡 自动  ·  画质 → JPG 精细（当前 RAW）", metaLine(cur, e, null));
         e[R_QUAL] = Q_RAW;   // the user forced RAW back on
-        assertEquals("Picture Effect Retro (Creative Style ignored, JPEG only)  ·  WB auto  ·  RAW is on: effect ignored", metaLine(cur, e, null));
+        assertEquals("照片效果 复古（创意风格被忽略，仅限 JPEG）  ·  白平衡 自动  ·  RAW 开启中：特效将被忽略", metaLine(cur, e, null));
     }
 
     @Test void metaLineShowsAnUnknownWhiteBalanceModeAndThePreviewError() {
         int[] cur = factoryRows(); int[] e = cur.clone(); e[R_WBMODE] = 3;
-        assertEquals("Standard  ·  WB mode 3  ·  no live preview: CameraEx not found", metaLine(cur, e, "CameraEx not found"));
+        assertEquals("标准  ·  白平衡 模式 3  ·  无实时预览：CameraEx not found", metaLine(cur, e, "CameraEx not found"));
     }
 
     @Test void miniPill() {
         int[] cur = factoryRows();
-        int i = indexOf("Kodak Portra 400");
+        int i = indexOf("柯达 Portra 400");
         int[] e = staged(Recipes.ALL[i], cur, Q_FINE);
-        assertEquals("CS  Kodak Portra 400   " + (i + 1) + " / 77   · preview", miniLine(i, cur, e, true));
-        assertEquals("CS  Kodak Portra 400   " + (i + 1) + " / 77   · active", miniLine(i, cur, e, false));
-        i = indexOf("GR Retro"); cur[R_QUAL] = Q_RAW;
+        assertEquals("风格  柯达 Portra 400   " + (i + 1) + " / 77   · 预览中", miniLine(i, cur, e, true));
+        assertEquals("风格  柯达 Portra 400   " + (i + 1) + " / 77   · 已生效", miniLine(i, cur, e, false));
+        i = indexOf("GR 复古"); cur[R_QUAL] = Q_RAW;
         e = staged(Recipes.ALL[i], cur, Q_RAW);
-        assertEquals("PE  GR Retro   " + (i + 1) + " / 77   · preview   · quality → JPG Fine", miniLine(i, cur, e, true));
+        assertEquals("特效  GR 复古   " + (i + 1) + " / 77   · 预览中   · 画质 → JPG 精细", miniLine(i, cur, e, true));
     }
 
     @Test void qualityPromptExplainsWhyTheQualityMoves() {
         int[] cur = factoryRows(); cur[R_QUAL] = Q_RAW;
-        int[] e = staged(recipe("GR Retro"), cur, Q_RAW);
-        assertArrayEquals(new String[] { "Quality: RAW  →  JPG Fine", "JPEG is needed to apply this recipe." }, qualityPrompt(cur, e));
+        int[] e = staged(recipe("GR 复古"), cur, Q_RAW);
+        assertArrayEquals(new String[] { "画质：RAW  →  JPG 精细", "应用此配方需要 JPEG 格式。" }, qualityPrompt(cur, e));
         e = cur.clone(); e[R_QUAL] = Q_STD;
-        assertArrayEquals(new String[] { "Quality: RAW  →  JPG Std", "Creative Style recipes use the Factory recipe's quality." }, qualityPrompt(cur, e));
+        assertArrayEquals(new String[] { "画质：RAW  →  JPG 标准", "创意风格配方使用出厂配方的画质。" }, qualityPrompt(cur, e));
     }
 }
