@@ -106,13 +106,15 @@ public class Recipes {
     }
 
     // ---- groups (brands) — recipes below MUST be listed in group order
-    public static final String[] GROUPS = { "索尼", "富士模拟", "富士胶片", "柯达", "电影", "理光 GR", "徕卡", "哈苏", "佳能 / 尼康", "松下 / 奥林巴斯", "其他胶片", "伊尔福德" };
+    public static String[] GROUPS = { "索尼", "富士模拟", "富士胶片", "柯达", "电影", "理光 GR", "徕卡", "哈苏", "佳能 / 尼康", "松下 / 奥林巴斯", "其他胶片", "伊尔福德" };
+    /** the brand column install() re-derives from */
+    private static final String[] GROUPS_BUILT = GROUPS.clone();
     /** the group a custom pack lands in (RecipePack): the brands run 0..GROUPS.length-1, and this row is composed at runtime */
     public static final int CUSTOM = GROUPS.length;
     public static final String CUSTOM_NAME = "自定义";
     private static final int SONY = 0, FSIM = 1, FFILM = 2, KODAK = 3, CINE = 4, RICOH = 5, LEICA = 6, HASSEL = 7, CANIK = 8, PANOLY = 9, OTHER = 10, ILFORD = 11;
 
-    public static final Recipe[] ALL = {
+    public static Recipe[] ALL = {
         // ---- Sony (Creative Looks from newer bodies — same pipeline, best fidelity)
         new Recipe(SONY,  "出厂默认（标准）",                     STD,      0,  0,  0, 0, AUTO, 0,     0,  0),
         new Recipe(SONY,  "索尼 PT（肖像）",                      PORTRAIT, 0,  0,  0, 0, AUTO, 0,     0,  0),
@@ -204,16 +206,48 @@ public class Recipes {
         new Recipe(ILFORD,"伊尔福德 Pan F 50",                    MONO,     0,  2,  2, 0, AUTO, 0,     0,  0),
     };
 
+    /** the built-in table install() re-derives from, so a restore is always possible */
+    private static final Recipe[] BUILT = ALL.clone();
+
     /** first recipe index of each group */
-    public static final int[] GROUP_START = new int[GROUPS.length];
-    public static final int[] GROUP_COUNT = new int[GROUPS.length];
-    static {
+    public static int[] GROUP_START = new int[GROUPS.length];
+    public static int[] GROUP_COUNT = new int[GROUPS.length];
+    static { computeGroups(); }
+
+    private static void computeGroups() {
+        GROUP_START = new int[GROUPS.length];
+        GROUP_COUNT = new int[GROUPS.length];
         for (int g = 0; g < GROUPS.length; g++) GROUP_START[g] = -1;
         for (int i = 0; i < ALL.length; i++) {
             int g = ALL[i].group;
             if (GROUP_START[g] < 0) GROUP_START[g] = i;
             GROUP_COUNT[g]++;
         }
+    }
+
+    /**
+     * Extends the table with the imported custom pack: customs whose name the table already has are skipped
+     * (the stored copy wins), the rest are appended as the trailing 自定义 group -- and with nothing to add,
+     * the table stays exactly as it was. Re-derives from the built-in table every time, so it is idempotent
+     * and an empty pack restores the plain 77-recipe table (which is what the tests clean up with).
+     */
+    public static void install(java.util.List<Recipe> customs) {
+        java.util.Set<String> names = new java.util.HashSet<String>();
+        java.util.List<Recipe> merged = new java.util.ArrayList<Recipe>();
+        for (Recipe r : BUILT) { names.add(r.name); merged.add(r); }
+        int added = 0;
+        if (customs != null)
+            for (Recipe r : customs)
+                if (r.group == CUSTOM && !names.contains(r.name)) { merged.add(r); names.add(r.name); added++; }
+        ALL = merged.toArray(new Recipe[0]);
+        GROUPS = added > 0 ? concat(GROUPS_BUILT, CUSTOM_NAME) : GROUPS_BUILT;
+        computeGroups();
+    }
+
+    private static String[] concat(String[] a, String last) {
+        String[] out = java.util.Arrays.copyOf(a, a.length + 1);
+        out[a.length] = last;
+        return out;
     }
 
     // ---- navigation: every step wraps, dir is +1 / -1
@@ -224,6 +258,7 @@ public class Recipes {
     /** the recipe after / before i within its brand */
     public static int nextInGroup(int i, int dir) {
         int g = ALL[i].group, start = GROUP_START[g], n = GROUP_COUNT[g];
+        if (n == 0) return i;   // defensive: a group nothing landed in is not navigable
         return start + ((i - start + n + dir) % n);
     }
 }

@@ -396,8 +396,8 @@ final class Params {
         }
     }
 
-    /** the line under the recipe name; {@code previewErr} is null while the live preview works */
-    static String metaLine(int[] cur, int[] edit, String previewErr) {
+    /** the line under the recipe name; {@code previewErr} is null while the live preview works, {@code flash} is the recipe's shooting advice (FLASH_NONE hides it) */
+    static String metaLine(int[] cur, int[] edit, String previewErr, int flash) {
         StringBuilder m = new StringBuilder();
         if (edit[R_PE] != 0) {
             m.append("照片效果 ").append(Recipes.PE_LABEL[edit[R_PE]]);
@@ -410,6 +410,8 @@ final class Params {
         if (edit[R_DRO] != Recipes.DRO_AUTO) m.append("  ·  DRO ").append(Recipes.droLabel(edit[R_DRO]));
         if (edit[R_QUAL] != cur[R_QUAL]) m.append("  ·  画质 → ").append(Q_LABEL[edit[R_QUAL]]).append("（当前 ").append(Q_LABEL[cur[R_QUAL]]).append("）");
         if (edit[R_PE] != 0 && edit[R_QUAL] <= Q_RAWJPG) m.append("  ·  RAW 开启中：特效将被忽略");
+        if (flash != Recipes.FLASH_NONE && flash >= 0 && flash < Recipes.FLASH_LABEL.length)
+            m.append("  ·  ").append(Recipes.FLASH_LABEL[flash]).append("（仅建议）");
         if (previewErr != null) m.append("  ·  无实时预览：").append(previewErr);
         return m.toString();
     }

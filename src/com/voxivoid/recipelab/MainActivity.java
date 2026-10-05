@@ -97,6 +97,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         super.onCreate(b);
         setContentView(R.layout.main);
         prefs = getPreferences(MODE_PRIVATE);
+        importCustoms();
         recipe = Math.max(0, Math.min(Recipes.ALL.length - 1, prefs.getInt("recipe", 0)));
         favs = Favourites.decode(prefs.getString("favourites", ""));
         settleIdx = DevTools.clampSettle(prefs.getInt("settle", DevTools.SETTLE_DEFAULT));
@@ -157,6 +158,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             previewOk = true;
         } catch (Throwable t) { previewOk = false; previewErr = String.valueOf(t); }
         stageRecipe(); applyPreview(); render();
+        if (customsNotice != null) { showToast(customsNotice, 6000); customsNotice = null; }
     }
 
     @Override
@@ -200,9 +202,51 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     private void stageRecipe() {
         Recipes.Recipe r = Recipes.ALL[recipe];
         Params.stage(r, edit);
+        if (rawDroOff()) edit[R_DRO] = Recipes.DRO_OFF;         // one place: preview and writes both derive from edit
         edit[R_QUAL] = recipeQuality(r);
         prefs.edit().putInt("recipe", recipe).commit();          // reopen on the last selected recipe
     }
+
+    // ------------------------------------------------------------ the custom pack (user layer)
+    /** an import message waiting for the views to exist; shown once in onResume */
+    private String customsNotice;
+
+    /**
+     * The launch-time import: the seed (res/raw/recipes.json) IS the custom pack -- every launch installs
+     * what it says, so editing the seed and reflashing takes effect immediately (there is no on-camera
+     * editing yet; the preferences copy is a cache the Phase-2 editor will grow from). Any failure leaves
+     * the plain built-in table in place: the degrade path is today's app.
+     * Reports go through customsNotice, never showToast: the views do not exist yet in onCreate, and an
+     * NPE inside this method's own catch would crash the launch.
+     */
+    private void importCustoms() {
+        try {
+            RecipePack.Result pack = RecipePack.parse(readSeed());
+            if (!pack.ok())
+                customsNotice = "自定义配方有 " + pack.errors.size() + " 个问题，已跳过：" + pack.errors.get(0);
+            String encoded = RecipePack.encode(pack.recipes);
+            if (!encoded.equals(prefs.getString("customs", null)))
+                prefs.edit().putString("customs", encoded).commit();   // first run, or the seed changed
+            Recipes.install(pack.recipes);
+        } catch (Throwable t) {
+            Recipes.install(null);
+            customsNotice = "自定义配方导入失败，仅使用内置配方";
+        }
+    }
+
+    /** the seed as text; UTF-8 explicitly -- the camera's default charset is no excuse to rely on it */
+    private String readSeed() throws Exception {
+        java.io.InputStream in = getResources().openRawResource(R.raw.recipes);
+        try {
+            java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+            byte[] buf = new byte[4096];
+            for (int n; (n = in.read(buf)) > 0; ) out.write(buf, 0, n);
+            return new String(out.toByteArray(), "UTF-8");
+        } finally { in.close(); }
+    }
+
+    /** the RAW-shooting mode: recipes skip their DRO (write DRO off) while it is on */
+    private boolean rawDroOff() { return prefs.getBoolean("rawDroOff", false); }
 
     /** quality from the two stored bytes; falls back to the runtime value when the slots are not known yet */
     private int readQuality() {
@@ -367,7 +411,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     private void renderMenu() {
         boolean snapshotTaken = snapFile().exists();
         String[] labels = new String[DevTools.ROWS], details = new String[DevTools.ROWS];
-        for (int i = 0; i < DevTools.ROWS; i++) { labels[i] = DevTools.rowLabel(i, snapshotTaken, settleIdx); details[i] = DevTools.rowDetail(i, snapshotTaken); }
+        for (int i = 0; i < DevTools.ROWS; i++) { labels[i] = DevTools.rowLabel(i, snapshotTaken, settleIdx, rawDroOff()); details[i] = DevTools.rowDetail(i, snapshotTaken); }
         menu.set(labels, details, menuSel);
         menu.setVisibility(View.VISIBLE);
     }
@@ -384,6 +428,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 settleIdx = DevTools.nextSettle(settleIdx, +1);
                 prefs.edit().putInt("settle", settleIdx).commit();
                 renderMenu(); break;
+            case DevTools.ROW_RAWMODE:
+                prefs.edit().putBoolean("rawDroOff", !rawDroOff()).commit();
+                stageRecipe(); applyPreview(); renderMenu(); break;
         }
     }
 
@@ -529,7 +576,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             fav.setVisibility(favs.contains(recipe) ? View.VISIBLE : View.GONE);
             if (dirty) { badge.setText("PREVIEW"); badge.setBackgroundResource(R.drawable.badge_warn); }
             else { badge.setText("ACTIVE"); badge.setBackgroundResource(R.drawable.badge_ok); }
-            meta.setText(Params.metaLine(cur, edit, previewOk ? null : previewErr));
+            meta.setText(Params.metaLine(cur, edit, previewOk ? null : previewErr, r.flash));
             for (int i = 1; i < N; i++) {
                 chip[i].setVisibility(rowVisible(i) ? View.VISIBLE : View.GONE);
                 boolean sel = i == row, ch = rowDirty(i), foc = sel && focus;

@@ -14,7 +14,7 @@ final class DevTools {
     static final String TITLE = "开发工具";
 
     /** menu rows, in display order */
-    static final int ROW_SNAPSHOT = 0, ROW_LOCKS = 1, ROW_SAMPLES = 2, ROW_SETTLE = 3, ROWS = 4;
+    static final int ROW_SNAPSHOT = 0, ROW_LOCKS = 1, ROW_SAMPLES = 2, ROW_SETTLE = 3, ROW_RAWMODE = 4, ROWS = 5;
 
     /**
      * Settle delays to pick from, in ms: how long the preview pipeline gets after a recipe is applied before the
@@ -36,13 +36,14 @@ final class DevTools {
     /** the row above / below, wrapping */
     static int nextRow(int row, int dir) { return (row + ROWS + dir) % ROWS; }
 
-    /** a row's title; the snapshot row and the delay row say what they will do next */
-    static String rowLabel(int row, boolean snapshotTaken, int settle) {
+    /** a row's title; the snapshot row, the delay row and the RAW row say what they will do next */
+    static String rowLabel(int row, boolean snapshotTaken, int settle, boolean rawDroOff) {
         switch (row) {
             case ROW_SNAPSHOT: return snapshotTaken ? "设置对比" : "设置快照";
             case ROW_LOCKS: return "只读检查 —— " + Params.allSlots().size() + " 个插槽";
             case ROW_SAMPLES: return "拍摄样片 —— " + Recipes.ALL.length + " 个配方";
             case ROW_SETTLE: return "稳定延迟 —— " + settleLabel(settle);
+            case ROW_RAWMODE: return "RAW 模式 DRO 关闭 —— " + (rawDroOff ? "开" : "关");
             default: return "?" + row;
         }
     }
@@ -54,6 +55,7 @@ final class DevTools {
             case ROW_LOCKS: return "检测配方写入的每个插槽是否只读";
             case ROW_SAMPLES: return "每个配方拍一张 JPEG，按表序进行 —— MENU 停止";
             case ROW_SETTLE: return "应用配方后、快门释放前的等待时间";
+            case ROW_RAWMODE: return "开：RAW 拍摄时配方一律不写 DRO（写为关）";
             default: return "";
         }
     }

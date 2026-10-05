@@ -14,30 +14,36 @@ class DevToolsTest {
     @Test void everyRowHasALabelAndADetailLine() {
         for (int r = 0; r < DevTools.ROWS; r++) {
             for (boolean snapshotTaken : new boolean[] { false, true }) {
-                assertFalse(DevTools.rowLabel(r, snapshotTaken, DevTools.SETTLE_DEFAULT).isEmpty(), "row " + r);
+                assertFalse(DevTools.rowLabel(r, snapshotTaken, DevTools.SETTLE_DEFAULT, false).isEmpty(), "row " + r);
                 assertFalse(DevTools.rowDetail(r, snapshotTaken).isEmpty(), "row " + r);
             }
         }
     }
 
     @Test void theSnapshotRowSaysWhichHalfOfTheToolItWillRun() {
-        assertEquals("设置快照", DevTools.rowLabel(DevTools.ROW_SNAPSHOT, false, 0));
-        assertEquals("设置对比", DevTools.rowLabel(DevTools.ROW_SNAPSHOT, true, 0), "a snapshot is on disk, so the next press diffs against it");
+        assertEquals("设置快照", DevTools.rowLabel(DevTools.ROW_SNAPSHOT, false, 0, false));
+        assertEquals("设置对比", DevTools.rowLabel(DevTools.ROW_SNAPSHOT, true, 0, false), "a snapshot is on disk, so the next press diffs against it");
     }
 
     @Test void theReadOnlyRowCountsTheSlotsItWillTest() {
-        assertEquals("只读检查 —— 26 个插槽", DevTools.rowLabel(DevTools.ROW_LOCKS, false, 0));
+        assertEquals("只读检查 —— 26 个插槽", DevTools.rowLabel(DevTools.ROW_LOCKS, false, 0, false));
         assertEquals(Params.allSlots().size(), 26, "the label counts the slots, so the slots are what it must count");
     }
 
     @Test void theSampleRowNamesTheWholeTable() {
-        assertEquals("拍摄样片 —— 77 个配方", DevTools.rowLabel(DevTools.ROW_SAMPLES, false, 0));
+        assertEquals("拍摄样片 —— 77 个配方", DevTools.rowLabel(DevTools.ROW_SAMPLES, false, 0, false));
         assertEquals(77, Recipes.ALL.length, "the label counts the table, so the table is what it must count");
     }
 
     @Test void theDelayRowShowsTheChosenDelay() {
-        assertEquals("稳定延迟 —— 0.8 s", DevTools.rowLabel(DevTools.ROW_SETTLE, false, 0));
-        assertEquals("稳定延迟 —— 1.2 s", DevTools.rowLabel(DevTools.ROW_SETTLE, false, 1));
+        assertEquals("稳定延迟 —— 0.8 s", DevTools.rowLabel(DevTools.ROW_SETTLE, false, 0, false));
+        assertEquals("稳定延迟 —— 1.2 s", DevTools.rowLabel(DevTools.ROW_SETTLE, false, 1, false));
+    }
+
+    @Test void theRawModeRowSaysWhatItDoesToTheRecipe() {
+        assertEquals("RAW 模式 DRO 关闭 —— 关", DevTools.rowLabel(DevTools.ROW_RAWMODE, false, 0, false));
+        assertEquals("RAW 模式 DRO 关闭 —— 开", DevTools.rowLabel(DevTools.ROW_RAWMODE, false, 0, true));
+        assertFalse(DevTools.rowDetail(DevTools.ROW_RAWMODE, false).isEmpty());
     }
 
     @Test void oneTurnOfTheMenuVisitsEveryRowItDefines() {
@@ -45,7 +51,7 @@ class DevToolsTest {
         Set<Integer> visited = new HashSet<Integer>();
         int r = DevTools.ROW_SNAPSHOT;
         for (int i = 0; i < DevTools.ROWS; i++) { visited.add(r); r = DevTools.nextRow(r, +1); }
-        assertEquals(new HashSet<Integer>(Arrays.asList(DevTools.ROW_SNAPSHOT, DevTools.ROW_LOCKS, DevTools.ROW_SAMPLES, DevTools.ROW_SETTLE)), visited);
+        assertEquals(new HashSet<Integer>(Arrays.asList(DevTools.ROW_SNAPSHOT, DevTools.ROW_LOCKS, DevTools.ROW_SAMPLES, DevTools.ROW_SETTLE, DevTools.ROW_RAWMODE)), visited);
         assertEquals(DevTools.ROW_SNAPSHOT, r, "and comes back to the first row");
     }
 
