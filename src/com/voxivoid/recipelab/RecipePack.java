@@ -15,9 +15,11 @@ import static com.voxivoid.recipelab.Params.R_SAT;
 import static com.voxivoid.recipelab.Params.R_SHARP;
 
 /**
- * The custom-recipe pack: the JSON a user authors on a PC -- res/raw/recipes.json as shipped, the same string
- * later kept in the app's preferences -- parsed, validated and encoded back. No camera and no Android in here,
- * so tools/test.sh runs it, which is what makes the "JSON 校验" a CI gate instead of an on-camera surprise.
+ * The custom-recipe pack: the JSON a human authors on a PC (recipes.json at the repo root), parsed and
+ * validated against the schema below and encoded back. On the camera nothing of this runs any more -- the
+ * recipes ship as generated rows of the static table (tools/gen-recipes.py); this parser is the gate the
+ * authoring pipeline and the parity test lean on, and the foundation Phase 2's on-camera editor will build
+ * on. No camera and no Android in here, so tools/test.sh runs it.
  *
  * Schema (every field checked; an unknown field is an error, so a typo cannot silently drop a setting):
  *   name          required, unique in the pack and against the built-in table, 1..26 chars, no '|'
@@ -339,7 +341,8 @@ final class RecipePack {
 
             if (name != null && !name.trim().isEmpty()) {
                 if (seen.contains(name)) bad.add("与前面的配方重名");
-                for (Recipes.Recipe r : Recipes.ALL) if (r.name.equals(name)) { bad.add("与内置配方重名（" + name + "）"); break; }
+                for (Recipes.Recipe r : Recipes.ALL)   // the custom group IS the pack re-stated; only the built-in groups own their names
+                    if (r.group != Recipes.CUSTOM && r.name.equals(name)) { bad.add("与内置配方重名（" + name + "）"); break; }
             }
 
             if (!bad.isEmpty()) { for (String b : bad) out.errors.add("第 " + (at + 1) + " 条：" + b); return; }

@@ -1,8 +1,8 @@
 # Recipe Lab — agent rules
 
-A PlayMemories (PMCA) camera app: 77 film-look recipes written straight into the camera's settings
-store. Native lib (ndk-build, NDK r16b) + Java, no Gradle. Upstream targets the Sony A6000; this CN
-fork is used on a **Sony A7 II (A7M2, installed via PMCA-RE)**.
+A PlayMemories (PMCA) camera app: 96 film-look recipes (77 built-in + 19 custom generated from recipes.json)
+written straight into the camera's settings store. Native lib (ndk-build, NDK r16b) + Java, no Gradle.
+Upstream targets the Sony A6000; this CN fork is used on a **Sony A7R II (installed via PMCA-RE)**.
 
 Read [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) and [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) before changing anything.
 The rules below are the ones that break things when ignored.
@@ -36,8 +36,11 @@ These rules were given by the fork's owner during development; they apply to eve
 
 ### 既定产品方向（勿反复）
 
-- 自定义配方走双层架构：**内置 77 条 Java 表不动**，用户配方 = 种子 JSON（`res/raw/recipes.json`）
-  导入用户层，以「自定义」分组并存；JPG/RAW 切换在**应用时覆盖 dro**，不批量改写数据。
+- 自定义配方与内置表**同表编译**：仓库根的 `recipes.json` 是人类编辑真源（带名字字段、防呆），
+  `tools/gen-recipes.py` 生成 Recipes.java 的「自定义」区块，一致性测试逐字段把关。**没有运行时导入**
+  （冷启动 IO 偶发失败曾致分组消失，2026-10-06 移除该路径）；改配方 = 改 JSON → 跑脚本 → 测试 → 重刷。
+  JPG/RAW 切换在**应用时覆盖 dro**，不批量改写。Phase 2 机上编辑到来时再启用 prefs 用户层与
+  install() 机制（已休眠保留并有测试）。
 
 ### 流程
 

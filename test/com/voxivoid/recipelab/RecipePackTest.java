@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 class RecipePackTest {
 
     /** the pack as it ships; tests read the real file so fixture and shipped data cannot drift apart */
-    private static final String SEED = "res/raw/recipes.json";
+    private static final String SEED = "recipes.json";
 
     private static String seed() throws Exception {
         return new String(Files.readAllBytes(Paths.get(SEED)), StandardCharsets.UTF_8);
@@ -46,6 +46,24 @@ class RecipePackTest {
     }
 
     // ---- the shipped seed
+    /** the generated 自定义 block must be exactly what recipes.json says, field by field: the generator's chain is only as trustworthy as this check */
+    @Test void theStaticTableMatchesTheAuthoringJson() throws Exception {
+        RecipePack.Result parsed = parse(seed());
+        assertTrue(parsed.ok(), parsed.errors.toString());
+        List<Recipes.Recipe> json = parsed.recipes;
+        assertEquals(json.size(), Recipes.GROUP_COUNT[Recipes.CUSTOM], "the generated block and the JSON list the same recipes");
+        int i = Recipes.GROUP_START[Recipes.CUSTOM];
+        for (Recipes.Recipe r : json) {
+            Recipes.Recipe t = Recipes.ALL[i++];
+            assertEquals(r.name, t.name);
+            assertEquals(r.style, t.style); assertEquals(r.sat, t.sat); assertEquals(r.con, t.con); assertEquals(r.sharp, t.sharp);
+            assertEquals(r.wbMode, t.wbMode); assertEquals(r.kelvin, t.kelvin);
+            assertEquals(r.ab, t.ab); assertEquals(r.gm, t.gm); assertEquals(r.ev, t.ev); assertEquals(r.dro, t.dro);
+            assertEquals(0, t.matrix); assertEquals(0, t.pe); assertEquals(0, t.sub);
+            assertEquals(r.flash, t.flash); assertEquals(r.tip, t.tip);
+        }
+    }
+
     @Test void theShippedSeedParsesClean() throws Exception {
         RecipePack.Result r = parse(seed());
         assertTrue(r.ok(), "the shipped seed must be valid: " + r.errors);
@@ -406,18 +424,24 @@ class RecipePackTest {
     /** every built-in stays pack-clean: no flash advice, no tip -- those belong to the custom layer only */
     @Test void builtInsCarryNoPackData() {
         for (Recipes.Recipe r : Recipes.ALL) {
+            if (r.group == Recipes.CUSTOM) continue;   // the custom group is the pack itself
             assertEquals(Recipes.FLASH_NONE, r.flash, r.name);
             assertEquals("", r.tip, r.name);
         }
     }
 
-    /** encode is for the pack: a built-in would either lose data or gain advice it never had -- refuse it */
-    @Test void encodeRefusesEveryBuiltIn() {
+    /** encode is for the pack: a built-in would lose data; a custom recipe round-trips */
+    @Test void encodeRefusesTheBuiltInsAndRoundTripsTheCustoms() {
+        List<Recipes.Recipe> customs = new ArrayList<Recipes.Recipe>();
         for (Recipes.Recipe r : Recipes.ALL) {
             List<Recipes.Recipe> one = new ArrayList<Recipes.Recipe>();
             one.add(r);
-            assertThrows(IllegalArgumentException.class, () -> RecipePack.encode(one), r.name);
+            if (r.group == Recipes.CUSTOM) customs.add(r);
+            else assertThrows(IllegalArgumentException.class, () -> RecipePack.encode(one), r.name);
         }
+        RecipePack.Result back = parse(RecipePack.encode(customs));
+        assertTrue(back.ok(), back.errors.toString());
+        assertEquals(customs.size(), back.recipes.size());
     }
 
     /**

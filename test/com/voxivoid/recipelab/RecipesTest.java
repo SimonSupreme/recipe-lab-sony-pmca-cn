@@ -12,8 +12,8 @@ import org.junit.jupiter.api.Test;
 class RecipesTest {
 
     @Test void hasTheDocumentedNumberOfRecipes() {
-        assertEquals(77, Recipes.ALL.length,
-                "README.md, CLAUDE.md, docs/DEVELOPMENT.md and docs/FAQ.md quote the recipe count -- update them together with this number");
+        assertEquals(96, Recipes.ALL.length,
+                "README.md and CLAUDE.md quote the recipe count (77 built-in + 19 custom) -- update them together with this number");
     }
 
     @Test void namesArePresentAndUnique() {

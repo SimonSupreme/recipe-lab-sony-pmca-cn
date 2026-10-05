@@ -106,11 +106,11 @@ public class Recipes {
     }
 
     // ---- groups (brands) — recipes below MUST be listed in group order
-    public static String[] GROUPS = { "索尼", "富士模拟", "富士胶片", "柯达", "电影", "理光 GR", "徕卡", "哈苏", "佳能 / 尼康", "松下 / 奥林巴斯", "其他胶片", "伊尔福德" };
+    public static String[] GROUPS = { "索尼", "富士模拟", "富士胶片", "柯达", "电影", "理光 GR", "徕卡", "哈苏", "佳能 / 尼康", "松下 / 奥林巴斯", "其他胶片", "伊尔福德", "自定义" };
     /** the brand column install() re-derives from */
     private static final String[] GROUPS_BUILT = GROUPS.clone();
-    /** the group a custom pack lands in (RecipePack): the brands run 0..GROUPS.length-1, and this row is composed at runtime */
-    public static final int CUSTOM = GROUPS.length;
+    /** the custom-pack group: Simon's own recipes, generated from recipes.json by tools/gen-recipes.py */
+    public static final int CUSTOM = 12;
     public static final String CUSTOM_NAME = "自定义";
     private static final int SONY = 0, FSIM = 1, FFILM = 2, KODAK = 3, CINE = 4, RICOH = 5, LEICA = 6, HASSEL = 7, CANIK = 8, PANOLY = 9, OTHER = 10, ILFORD = 11;
 
@@ -204,6 +204,27 @@ public class Recipes {
         new Recipe(ILFORD,"伊尔福德 Delta 100",                   MONO,     0,  1,  1, 0, AUTO, 0,     0,  0),
         new Recipe(ILFORD,"伊尔福德 Delta 3200",                  MONO,     0,  3, -2, 0, AUTO, 0,     0,  0,  0,  2, 6),
         new Recipe(ILFORD,"伊尔福德 Pan F 50",                    MONO,     0,  2,  2, 0, AUTO, 0,     0,  0),
+        // ==== gen:custom begin（tools/gen-recipes.py 从 recipes.json 生成——改 JSON 后重跑脚本，别手改这里）====
+        new Recipe(CUSTOM, "我的日常基准｜写实原生感",                          STD,  0, -1,  1, 0,    0,    0,  1,  0, 0,  0,     1, 0, FLASH_OFF, "日常自然光记录，不建议闪光"),
+        new Recipe(CUSTOM, "室内人像基准｜写实",                             PORTRAIT,  0, -1,  0, 0,    0,    0,  2,  0, 0,  0,     1, 0, FLASH_SOFT, "暗光仅可柔光跳闪，不建议机顶直闪"),
+        new Recipe(CUSTOM, "CCD冷白皮｜柔光冷调",                           STD, -1, -1,  0, 0,    0,    0, -1, -1, 0,  0,     1, 0, FLASH_ON, "室内弱光推荐直闪，距离1.2~2.5米"),
+        new Recipe(CUSTOM, "CCD冷白皮｜弱光白光室内",                         STD, -1, -1,  0, 0,    0,    0,  0, -1, 0,  0,     1, 0, FLASH_ON, "白光室内，推荐直闪，CCD人像效果最佳"),
+        new Recipe(CUSTOM, "G12 CCD｜闪光冷白皮",                         STD, -1, -2, -1, 0,    0,    0, -2, -1, 0,  1,     1, 0, FLASH_ON, "G12 CCD闪光风格，室内暗光推荐直闪"),
+        new Recipe(CUSTOM, "G12 CCD｜日光奶油复古",                        PORTRAIT,  1, -1, -1, 0,    0,    0,  2, -1, 0,  0,     1, 0, FLASH_OFF, "户外日光拍摄，纯自然光，不建议闪光"),
+        new Recipe(CUSTOM, "IXUS130｜闪光冷粉白皮",                        PORTRAIT, -1, -2, -1, 0,    0,    0, -1, -2, 0,  1,     1, 0, FLASH_ON, "IXUS网红粉白皮，闪光灯是这套风格核心，推荐室内使用"),
+        new Recipe(CUSTOM, "IXUS130｜自然光清透人像",                       PORTRAIT,  0, -1, -1, 0,    0,    0,  0, -1, 0,  1,     1, 0, FLASH_OFF, "窗边/阴天自然光，不建议直闪"),
+        new Recipe(CUSTOM, "IXUS210｜暖调柔焦氛围感",                       PORTRAIT,  1, -1, -1, 0,    0,    0,  2, -1, 0,  0,     1, 0, FLASH_OFF, "日落暖光环境，依靠环境光营造氛围感，不建议闪光"),
+        new Recipe(CUSTOM, "佳能风人像｜暖润粉肤",                            PORTRAIT,  0, -1,  0, 0,    0,    0,  1, -1, 0,  0,     1, 0, FLASH_OFF, "自然光人像，树荫、窗边优先，不建议闪光"),
+        new Recipe(CUSTOM, "佳能人像｜日光强光版",                            PORTRAIT,  0, -1,  0, 0,    0,    0,  0, -1, 0,  0,     1, 0, FLASH_OFF, "户外日光人像，不建议使用闪光灯"),
+        new Recipe(CUSTOM, "iPhone8P｜原生写实干净感",                      STD,  0,  0,  0, 0,    0,    0,  0, -1, 0,  0,     1, 0, FLASH_OFF, "生活化抓拍，纯自然光，不建议闪光"),
+        new Recipe(CUSTOM, "iPhone8P｜轻复古氛围感",                       STD, -1, -1,  0, 0,    0,    0,  1, -1, 0,  1,     1, 0, FLASH_OFF, "自然光塑造复古松弛感，不建议直闪"),
+        new Recipe(CUSTOM, "温俊国贸Luke｜7P古早自然光（井柏然同款质感）",             STD, -1, -1, -1, 0,    0,    0,  0, -1, 0,  1,     1, 0, FLASH_OFF, "原版为午后自然光抓拍，直闪会破坏画面质感，不建议闪光"),
+        new Recipe(CUSTOM, "绿野仙踪｜林间青调梦幻感",                          NEUTRAL,  0, -2, -1, 0,    0,    0, -1,  1, 0,  1,     1, 0, FLASH_OFF, "树林漫射光，闪光会抹掉朦胧青绿色雾感，不建议闪光"),
+        new Recipe(CUSTOM, "绿野仙踪｜人像保护版",                            NEUTRAL,  0, -2, -1, 0,    0,    0,  0,  0, 0,  1,     1, 0, FLASH_OFF, "林间人像，依靠树荫柔光，不建议直闪"),
+        new Recipe(CUSTOM, "Portra400｜柔和胶片人像",                      PORTRAIT,  0, -1,  0, 0,    0,    0,  1, -1, 0,  0,     1, 0, FLASH_OFF, "胶片质感，靠自然光光影层次，不建议闪光"),
+        new Recipe(CUSTOM, "ClassicChrome｜风光低饱和灰调",                 NEUTRAL, -1, -1,  0, 0,    0,    0,  0,  0, 0,  0,     1, 0, FLASH_OFF, "风光拍摄，不建议使用闪光灯"),
+        new Recipe(CUSTOM, "CineStill800T｜夜景暖胶片",                   STD,  0, -1,  0, 0,    K, 3200,  0, -1, 0,  0,     1, 0, FLASH_SOFT, "依靠夜景环境灯光；仅建议柔光补光，不建议机顶直闪"),
+        // ==== gen:custom end ====
     };
 
     /** the built-in table install() re-derives from, so a restore is always possible */
@@ -240,7 +261,8 @@ public class Recipes {
             for (Recipe r : customs)
                 if (r.group == CUSTOM && !names.contains(r.name)) { merged.add(r); names.add(r.name); added++; }
         ALL = merged.toArray(new Recipe[0]);
-        GROUPS = added > 0 ? concat(GROUPS_BUILT, CUSTOM_NAME) : GROUPS_BUILT;
+        boolean tableHasCustomGroup = GROUPS_BUILT.length > CUSTOM;
+        GROUPS = added > 0 && !tableHasCustomGroup ? concat(GROUPS_BUILT, CUSTOM_NAME) : GROUPS_BUILT;
         computeGroups();
     }
 

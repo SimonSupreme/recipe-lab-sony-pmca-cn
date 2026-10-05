@@ -31,8 +31,8 @@ class DevToolsTest {
     }
 
     @Test void theSampleRowNamesTheWholeTable() {
-        assertEquals("拍摄样片 —— 77 个配方", DevTools.rowLabel(DevTools.ROW_SAMPLES, false, 0, false));
-        assertEquals(77, Recipes.ALL.length, "the label counts the table, so the table is what it must count");
+        assertEquals("拍摄样片 —— 96 个配方", DevTools.rowLabel(DevTools.ROW_SAMPLES, false, 0, false));
+        assertEquals(96, Recipes.ALL.length, "the label counts the table, so the table is what it must count");
     }
 
     @Test void theDelayRowShowsTheChosenDelay() {

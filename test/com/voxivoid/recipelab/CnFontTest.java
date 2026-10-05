@@ -72,7 +72,7 @@ class CnFontTest {
     /** every non-ASCII char the app can show: recipe names and tips, strings.xml, layouts, Java string literals */
     private static String neededChars() throws IOException {
         StringBuilder need = new StringBuilder();
-        String seed = new String(Files.readAllBytes(Paths.get("res/raw/recipes.json")), StandardCharsets.UTF_8);
+        String seed = new String(Files.readAllBytes(Paths.get("recipes.json")), StandardCharsets.UTF_8);
         Matcher names = Pattern.compile("\"name\"\\s*:\\s*\"([^\"]*)\"").matcher(seed);
         while (names.find()) need.append(names.group(1));
         Matcher tips = Pattern.compile("\"tip\"\\s*:\\s*\"([^\"]*)\"").matcher(seed);

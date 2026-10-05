@@ -20,39 +20,54 @@ class CustomTableTest {
     @AfterEach void restoreTheBuiltInTable() { Recipes.install(null); }
 
     private static List<Recipes.Recipe> seedPack() throws Exception {
-        RecipePack.Result r = RecipePack.parse(new String(Files.readAllBytes(Paths.get("res/raw/recipes.json")), StandardCharsets.UTF_8));
+        RecipePack.Result r = RecipePack.parse(new String(Files.readAllBytes(Paths.get("recipes.json")), StandardCharsets.UTF_8));
         assertTrue(r.ok(), r.errors.toString());
         return r.recipes;
     }
 
-    @Test void installingTheSeedAppendsTheCustomGroup() throws Exception {
-        assertEquals(77, Recipes.ALL.length);
-        Recipes.install(seedPack());
+    /** the shipped table already carries the generated custom group */
+    @Test void theGeneratedTableShipsTheCustomGroup() {
         assertEquals(96, Recipes.ALL.length);
         assertEquals(13, Recipes.GROUPS.length);
         assertEquals(Recipes.CUSTOM_NAME, Recipes.GROUPS[Recipes.CUSTOM]);
         assertEquals(77, Recipes.GROUP_START[Recipes.CUSTOM]);
         assertEquals(19, Recipes.GROUP_COUNT[Recipes.CUSTOM]);
-        for (int g = 0; g < 12; g++) {   // the built-in groups are untouched
+        for (int g = 0; g < 13; g++) {
             assertTrue(Recipes.GROUP_COUNT[g] > 0);
             assertEquals(g, Recipes.ALL[Recipes.GROUP_START[g]].group, "start of " + Recipes.GROUPS[g]);
         }
-        int last = 0;   // the whole table stays in group order
+        int last = 0;
         for (Recipes.Recipe r : Recipes.ALL) { assertTrue(r.group >= last, r.name); last = r.group; }
     }
 
-    @Test void anEmptyPackRestoresThePlainTable() throws Exception {
+    /** the authoring seed's names are all in the table already: installing it changes nothing */
+    @Test void installingTheSeedIsANoOpOnTheGeneratedTable() throws Exception {
+        Recipes.install(seedPack());
+        assertEquals(96, Recipes.ALL.length, "the seed's names are all in the table -- nothing to add");
+        assertEquals(13, Recipes.GROUPS.length);
+    }
+
+    @Test void aNovelCustomRecipeStillAppendsForPhaseTwo() {
+        List<Recipes.Recipe> pack = new ArrayList<Recipes.Recipe>();
+        pack.add(new Recipes.Recipe(Recipes.CUSTOM, "新名字", Recipes.STD, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, Recipes.FLASH_OFF, ""));
+        Recipes.install(pack);
+        assertEquals(97, Recipes.ALL.length);
+        assertEquals(13, Recipes.GROUPS.length);
+        assertEquals(20, Recipes.GROUP_COUNT[Recipes.CUSTOM]);
+    }
+
+    @Test void anEmptyPackRestoresTheShippedTable() throws Exception {
         Recipes.install(seedPack());
         Recipes.install(null);
-        assertEquals(77, Recipes.ALL.length);
-        assertEquals(12, Recipes.GROUPS.length);
+        assertEquals(96, Recipes.ALL.length);
+        assertEquals(13, Recipes.GROUPS.length);
     }
 
     @Test void namesTheTableAlreadyHasAreSkippedNotOverwritten() {
         List<Recipes.Recipe> pack = new ArrayList<Recipes.Recipe>();
         pack.add(new Recipes.Recipe(Recipes.CUSTOM, "柯达 Portra 400", Recipes.STD, 9, 9, 9, 0, 0, 0, 9, 9, 0, 0, 1, 0, Recipes.FLASH_OFF, ""));
         Recipes.install(pack);
-        assertEquals(77, Recipes.ALL.length, "a name the table already has is skipped");
+        assertEquals(96, Recipes.ALL.length, "a name the table already has is skipped");
         assertEquals(Recipes.PORTRAIT, Recipes.ALL[Fixtures.indexOf("柯达 Portra 400")].style, "the built-in copy is untouched");
     }
 
@@ -60,7 +75,7 @@ class CustomTableTest {
         List<Recipes.Recipe> pack = new ArrayList<Recipes.Recipe>();
         pack.add(new Recipes.Recipe(0, "混入品牌组", Recipes.STD, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, Recipes.FLASH_OFF, ""));
         Recipes.install(pack);
-        assertEquals(77, Recipes.ALL.length, "only the custom group may be appended");
+        assertEquals(96, Recipes.ALL.length, "only the custom group may be appended");
     }
 
     @Test void favouritesResolveCustomRecipesByName() throws Exception {
@@ -89,6 +104,6 @@ class CustomTableTest {
         assertEquals(90, Math.max(0, Math.min(Recipes.ALL.length - 1, 90)));
         assertEquals(95, Math.max(0, Math.min(Recipes.ALL.length - 1, 500)), "an index from a larger table clamps to the new end");
         Recipes.install(null);
-        assertEquals(76, Math.max(0, Math.min(Recipes.ALL.length - 1, 90)), "an index from the composed table clamps back after a restore");
+        assertEquals(90, Math.max(0, Math.min(Recipes.ALL.length - 1, 90)), "the shipped table already reaches the custom group");
     }
 }

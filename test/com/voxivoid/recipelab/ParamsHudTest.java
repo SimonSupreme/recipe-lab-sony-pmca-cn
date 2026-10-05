@@ -58,11 +58,11 @@ class ParamsHudTest {
         int[] cur = factoryRows();
         int i = indexOf("柯达 Portra 400");
         int[] e = staged(Recipes.ALL[i], cur, Q_FINE);
-        assertEquals("风格  柯达 Portra 400   " + (i + 1) + " / 77   · 预览中", miniLine(i, cur, e, true));
-        assertEquals("风格  柯达 Portra 400   " + (i + 1) + " / 77   · 已生效", miniLine(i, cur, e, false));
+        assertEquals("风格  柯达 Portra 400   " + (i + 1) + " / 96   · 预览中", miniLine(i, cur, e, true));
+        assertEquals("风格  柯达 Portra 400   " + (i + 1) + " / 96   · 已生效", miniLine(i, cur, e, false));
         i = indexOf("GR 复古"); cur[R_QUAL] = Q_RAW;
         e = staged(Recipes.ALL[i], cur, Q_RAW);
-        assertEquals("特效  GR 复古   " + (i + 1) + " / 77   · 预览中   · 画质 → JPG 精细", miniLine(i, cur, e, true));
+        assertEquals("特效  GR 复古   " + (i + 1) + " / 96   · 预览中   · 画质 → JPG 精细", miniLine(i, cur, e, true));
     }
 
     @Test void qualityPromptExplainsWhyTheQualityMoves() {

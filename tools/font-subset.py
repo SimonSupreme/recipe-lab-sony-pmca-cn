@@ -33,7 +33,7 @@ def needed_chars():
         for ch in text:
             if ord(ch) >= 0x20 and ord(ch) != 0xFEFF:
                 need.add(ord(ch))
-    for r in json.load(open(os.path.join(ROOT, 'res/raw/recipes.json'), encoding='utf-8')):
+    for r in json.load(open(os.path.join(ROOT, 'recipes.json'), encoding='utf-8')):
         add(r['name']); add(r.get('tip', ''))
     for f in ['res/values/strings.xml', 'res/layout/main.xml']:
         add(open(os.path.join(ROOT, f), encoding='utf-8').read())
